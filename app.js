@@ -4,6 +4,7 @@ var path = require('path');
 var expressValidator = require('express-validator');
 var mongojs = require('mongojs');
 var db = mongojs('customerapp', ['users']) ;
+var ObjectId = mongojs.ObjectId;
 
 var app = express();
 // var users = [
@@ -107,6 +108,14 @@ app.post('/users/add', function(req, res) {
     next();
 }
 app.use(logger);*/
+app.delete('/users/delete/:id', function(req, res) {
+    db.users.remove({_id: ObjectId(req.params.id)}, function(err, result){
+        if(err){
+            console.log(err);
+        }
+        res.redirect('/');
+    });
+});
 app.listen(3000, function() {
     console.log('Server Started at Port 3000...');
 })
