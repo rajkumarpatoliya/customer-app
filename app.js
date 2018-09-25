@@ -2,31 +2,33 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var path = require('path');
 var expressValidator = require('express-validator');
+var mongojs = require('mongojs');
+var db = mongojs('customerapp', ['users']) ;
 
 var app = express();
-var users = [
-    {
-        id: 01,
-        firstname: 'Rajkumar',
-        lastname: 'Patoliya',
-        age: 23,
-        email: 'patoliyaraj@gmail.com'
-    },
-    {
-        id: 02,
-        firstname: 'Karan',
-        lastname: 'ahir',
-        age: 24,
-        email: 'karan@gmail.com'
-    },
-    {
-        id: 03,
-        firstname: 'Sandeep',
-        lastname: 'ahir',
-        age: 22,
-        email: 'sandeep@gmail.com'
-    }
-]
+// var users = [
+//     {
+//         id: 01,
+//         firstname: 'Rajkumar',
+//         lastname: 'Patoliya',
+//         age: 23,
+//         email: 'patoliyaraj@gmail.com'
+//     },
+//     {
+//         id: 02,
+//         firstname: 'Karan',
+//         lastname: 'ahir',
+//         age: 24,
+//         email: 'karan@gmail.com'
+//     },
+//     {
+//         id: 03,
+//         firstname: 'Sandeep',
+//         lastname: 'ahir',
+//         age: 22,
+//         email: 'sandeep@gmail.com'
+//     }
+// ]
 
 // View engine
 app.set('view engine', 'ejs');
@@ -64,10 +66,13 @@ app.use(expressValidator({
     }
 }));
 app.get('/', function(req, res) {
-    res.render('index', {
-        title:'Customers',
-        users: users
-    });
+    // Find Everything
+    db.users.find(function (err, docs) {
+        res.render('index', {
+            title:'Customers',
+            users: docs
+        });
+    })
 });
 
 app.post('/users/add', function(req, res) {
@@ -87,7 +92,12 @@ app.post('/users/add', function(req, res) {
             lastname: req.body.lastname,
             email: req.body.email
         }
-        console.log('Registration Successful...');
+        db.users.insert(newCustomer, function(err, result){
+            if(err){
+                console.log(err);
+            }
+            res.redirect('/');
+        });
     }
     
 });
